@@ -125,7 +125,7 @@ process_read_request(Request, From, State =
     _ ->  %ordinary request with response
       Next(),
       RespFun = mc_worker_logic:get_resp_fun(UpdReq, From),  % save function, which will be called on response
-      URStorage = RequestStorage#{Id => RespFun},
+      URStorage = maps:put(RequestStorage,Id,RespFun),
       {noreply, UState#state{request_storage = URStorage}}
   end.
 
@@ -149,7 +149,7 @@ process_write_request(Request, From,
   {ok, PacketSize, Id} = mc_worker_logic:make_request(
     Socket, NetModule, Db, [Request, ConfirmWrite]), % ordinary write request
   RespFun = mc_worker_logic:get_resp_fun(Request, From),
-  UReqStor = ReqStor#{Id => RespFun},  % save function, which will be called on response
+  UReqStor = maps:put(ReqStor,Id,RespFun),  % save function, which will be called on response
   UState = need_hibernate(PacketSize, State#state{request_storage = UReqStor}),
   {noreply, UState}.
 
